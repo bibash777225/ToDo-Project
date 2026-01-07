@@ -1,29 +1,27 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import type ApiData from "../types/todo";
-import { endpoints } from "../constants/endpoint";
 import axios from "axios";
-
+import { endpoints } from "../constants/endpoint";
+import type ApiData from "../types/todo";
 
 export const TodoApi = {
   //get all
-  getAllTodo: () => {
-    return axios.get<ApiData[]>(endpoints.getAll);
+  getAllTodo: async () => {
+    return await axios.get<ApiData[]>(endpoints.getAll);
   },
 
   //get by id
-  getTodoById: (id: string | number) =>
-    axios.get<ApiData>(endpoints.getById(id)),
+  getTodoById: async (id: string | number) =>
+    await axios.get<ApiData>(endpoints.getById(id)),
 
   //  create
 
-  createTodo: (data: Partial<ApiData>) =>
-    axios.post<ApiData>(endpoints.create, data),
+  createTodo: async (data: Partial<ApiData>) =>
+    await axios.post<ApiData>(endpoints.create, data),
+
+  // delete by id
+  deleteTodoById: async (id: string | number) =>
+    await axios.delete<ApiData>(endpoints.delete(id)),
 };
-// delete by id
-
-//  deleteTodoById:(id:string|number)=>
-
-//     axios.get<ApiData>(endpoints.delete(id))
 
 // update by id
 // updateTodoById:(id:string|number)=>
@@ -80,6 +78,23 @@ export const useCreateTodo = () => {
       // invo
       queryClient.invalidateQueries({
         queryKey: ["LEARN"],
+      });
+    },
+  });
+};
+
+export const useDeleteTodoById = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: TodoApi.deleteTodoById,
+    onSuccess: (_, id) => {
+      // refresh toto list after create
+      // Invalidate and refetch the todo list after deletion
+      queryClient.invalidateQueries({
+        queryKey: ["LEARN"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["LEARN", id],
       });
     },
   });

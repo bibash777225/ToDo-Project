@@ -11,6 +11,8 @@ export default function App() {
     <>
    <CreateTodo></CreateTodo>
     <About></About>
+    
+     {/* <DeleteTodo></DeleteTodo> */}
     </>
   )
 

@@ -1,9 +1,9 @@
  export default interface ApiData {
   id:string;
   name:string;
-  createdAt:string;
+  status:string;
   deadline:string;
-  avatar:string;
+  Activities:string;
 }
 // // Type used only for creating new todo
 // export type CreateTodoInput = {
