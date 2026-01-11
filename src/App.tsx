@@ -1,29 +1,7 @@
-import { BrowserRouter, Routes,Route } from "react-router-dom"
-import About from "./pages/about"
-import CreateTodo from "./pages/create"
-
-// import {view} from "./pages/view";
-
-
+// App.tsx - NEW (Use this instead)
+import { RouterProvider } from "react-router-dom";
+import { router } from "./routes/route";
 
 export default function App() {
-  
-  
-  return (
-    <>
-      <BrowserRouter>
-        <Routes>
-          <Route>
-            <Route path="/view" element={<view />} />
-          </Route>
-        </Routes>
-      </BrowserRouter>
-
-      <CreateTodo></CreateTodo>
-      <About></About>
-
-      {/* <DeleteTodo></DeleteTodo> */}
-    </>
-  );
-
+  return <RouterProvider router={router} />;
 }

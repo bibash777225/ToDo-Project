@@ -71,7 +71,7 @@
 //     </div>
 //   );
 // }
-
+import { useState } from "react";
 import { Button } from "@/Components/ui/button";
 import {
   DropdownMenu,
@@ -79,108 +79,97 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/Components/ui/dropdown-menu";
-// import { useNavigate } from "react-router-dom";
-
 import { Spinner } from "@/Components/ui/spinner";
-import { useDeleteTodoById, useGetAllTodoApi, useTodoGetById } from "../hooks/todohooks";
+
+import { useDeleteTodoById, useGetAllTodoApi } from "../../hooks/todohooks";
+
+import EditTodo from "./partials/edit";
+import { useNavigate } from "react-router-dom";
+import CreateTodo from "./partials/create";
 
 
 
-// interface TodoItemProps {
-//   todo: <ApiData>;
-// }            
 
 export default function About() {
-  // single id ko
-  const { data: id } = useTodoGetById(5);
-
-  //sabai 
+  // get all todos
   const { data, isLoading } = useGetAllTodoApi();
-// delte ko 
-const{mutate:deleteTodo}=useDeleteTodoById();
 
-//  for navigation
-// const navigate=useNavigate();
+  // delete todo
+  const { mutate: deleteTodo, isPending } = useDeleteTodoById();
+
+  // edit state
+  const [editingId, setEditingId] = useState<string | null>(null);
+// navigation for view page
+const navigate = useNavigate();
   return (
     <div className="min-h-screen bg-gray-100 p-6">
-      {/* u chai spinner haleko  */}
+      {/* Loading */}
       {isLoading && (
         <div className="flex justify-center items-center my-10">
           <Spinner className="w-10 h-10 border-4 border-green-500 border-t-transparent rounded-full animate-spin" />
         </div>
       )}
+      <CreateTodo/>
 
-      {/* Todo Table ko lagi u chai */}
+      {/* Table */}
       <div className="overflow-x-auto">
         <table className="min-w-full bg-white rounded-xl shadow-md">
           <thead className="bg-amber-200">
             <tr>
-              <th className="py-3 px-6 text-left border-b border-gray-300">
-                ID
-              </th>
-              <th className="py-3 px-6 text-left border-b border-gray-300">
-                Name
-              </th>
-              <th className="py-3 px-6 text-left border-b border-gray-300">
-                {" "}
-                Activities
-              </th>
-              <th className="py-3 px-6 text-left border-b border-gray-300">
-                Status
-              </th>
-              <th className="py-3 px-6 text-left border-b border-gray-300">
-                Actions
-              </th>
+              <th className="py-3 px-6 text-left">ID</th>
+              <th className="py-3 px-6 text-left">Name</th>
+              <th className="py-3 px-6 text-left">Activities</th>
+              <th className="py-3 px-6 text-left">Status</th>
+              <th className="py-3 px-6 text-left">Actions</th>
             </tr>
           </thead>
+
           <tbody>
             {data?.data.map((item) => (
               <tr key={item.id} className="hover:bg-green-100 transition">
-                <td className="py-3 px-6 border-b border-gray-300">
-                  {item.id}
-                </td>
-                <td className="py-3 px-6 border-b border-gray-300">
-                  {item.name}
-                </td>
-                <td className="py-3 px-6 border-b border-gray-300">
-                  {item.Activities}
-                </td>
+                <td className="py-3 px-6 border-b">{item.id}</td>
+                <td className="py-3 px-6 border-b">{item.name}</td>
+                <td className="py-3 px-6 border-b">{item.Activities ?? "-"}</td>
 
                 <td
-                  className={`py-3 px-6 border-b border-gray-300 ${
+                  className={`py-3 px-6 border-b font-semibold ${
                     item.status === "success"
-                      ? "text-green-600 font-semibold"
+                      ? "text-green-600"
                       : item.status === "pending"
-                      ? "text-yellow-500 font-semibold"
-                      : "text-red-500 font-semibold"
+                      ? "text-yellow-500"
+                      : "text-red-500"
                   }`}
                 >
                   {item.status}
                 </td>
-                <td className="py-3 px-6 border-b border-gray-300">
-                  <DropdownMenu >
+
+                <td className="py-3 px-6 border-b">
+                  <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="ghost">...</Button>
                     </DropdownMenuTrigger>
 
-                    <DropdownMenuContent>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={() => setEditingId(item.id)}>
+                        Edit
+                      </DropdownMenuItem>
+                      {/* Add View option */}
                       <DropdownMenuItem
-                      
-                      variant="destructive"
-                      >Edit</DropdownMenuItem>
-
-                       <DropdownMenuItem
-                        
+                        onClick={() => navigate(`/view/${item.id}`)}
                       >
                         View
                       </DropdownMenuItem>
-                      
-                   
+
                       <DropdownMenuItem
                         variant="destructive"
+                        disabled={isPending}
                         onClick={() => deleteTodo(item.id)}
+                        className="flex items-center gap-2"
                       >
-                        Delete
+                        {isPending && (
+                          <Spinner className="w-4 h-4 border-2 border-green-500 border-t-transparent rounded-full animate-spin" />
+                        )}
+                        {isPending ? "Deleting..." : "Delete"}
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -191,14 +180,11 @@ const{mutate:deleteTodo}=useDeleteTodoById();
         </table>
       </div>
 
-      {/* Single Todo By ID  */}
-      {id?.data && (
-        <div className="mt-6 text-center">
-          <h2 className="text-xl font-semibold">
-            Selected Todo: {id.data.name}
-          </h2>
-        </div>
+      {/* Edit Sheet  is IMPORTANT: outside table */}
+      {editingId && (
+        <EditTodo id={editingId} onClose={() => setEditingId(null)} />
       )}
     </div>
   );
 }
+

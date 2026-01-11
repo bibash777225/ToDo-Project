@@ -1,4 +1,3 @@
-
 import type ApiData from "../types/todo";
 import { TodoApi } from "@/services/todo";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -76,22 +75,22 @@ export const useDeleteTodoById = () => {
   });
 };
 
-  export const useEditTodoBYId=()=>{
- const queryClient=useQueryClient();
+export const useEditTodoById = () => {
+  const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn:TodoApi.editTodoByID,
+    mutationFn: ({ id, data }: { id: string; data: Partial<ApiData> }) =>
+      TodoApi.editTodoByID(id, data),
 
-    onSuccess:(_, id)=>{
+    onSuccess: (_, variables) => {
       // refresh toto list after create
       // Invalidate and refetch the todo list after deletion
-       queryClient.invalidateQueries({
-         queryKey: ["LEARN"],
-       });
-       queryClient.invalidateQueries({
-         queryKey: ["LEARN",id],
-       });
-    }
-
-  })
- }
+      queryClient.invalidateQueries({
+        queryKey: ["LEARN"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["LEARN", variables.id],
+      });
+    },
+  });
+};

@@ -1,18 +1,26 @@
-// import {createBrowserRouter, useRoutes} from"react-router-dom"
 
-// import vieww from "@/pages/View";
-//  export const router = createBrowserRouter([
-//    {
-//      path: "/",
-//      element: <vieww/>,
-    
-//    },
-//    {
-//      path: "/about",
-//      element: <div>About Page</div>,
-//    },
-//    return{
+import { createBrowserRouter } from "react-router-dom";
 
-//      useRoutes(router);
-//    }
-//  ]);
+import ViewTodo from "@/pages/home/partials/view";
+import About from "@/pages/home/Home";
+import CreateTodo from "@/pages/home/partials/create";
+import { ErrorPage, } from "@/pages/home/partials/error";
+
+
+export const router = createBrowserRouter([
+  {
+    path: "/",
+    element:< About/>,//home page 
+    errorElement:<ErrorPage></ErrorPage>
+  },
+  {
+    path: "/view/:id",
+    element: <ViewTodo />,  // view particular TOdo by id 
+  },
+  {
+    path: "/create",
+    element: <CreateTodo />,  // view particular TOdo by id 
+  },
+  
+ 
+]);

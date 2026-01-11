@@ -1,20 +1,17 @@
 import { useState } from "react";
-import { useCreateTodo } from "../hooks/todohooks";
+import { useCreateTodo } from "../../../hooks/todohooks";
 import { Spinner } from "@/Components/ui/spinner";
 import { HoverCard } from "@radix-ui/react-hover-card";
-import { Link } from "react-router-dom";
-import { Button } from "@/Components/ui/button";
 
 
 export default function CreateTodo() {
   const [todoName, setTodoName] = useState("");
-  const { mutate,isPending} = useCreateTodo();
+  const { mutate, isPending } = useCreateTodo();
   // const {deleteModal}=useDeleteTodoById()
-
 
   const handleCreateTodo = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (todoName.trim()) {
       mutate({
         name: todoName,
@@ -24,10 +21,9 @@ export default function CreateTodo() {
   };
   return (
     <>
+    
       <div className="text-center font-bold text-2xl border-b-4 border-gray-500 pb-2 bg-amber-100">
-        
-            <h1> Todo List</h1>
-        
+        <h1> Todo List</h1>
 
         <div className="bg-white rounded-lg shadow-sm p-6">
           <form onSubmit={handleCreateTodo} className="flex gap-3">

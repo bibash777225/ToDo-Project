@@ -1,7 +1,7 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
-@custom-variant dark (&:is(.dark *));
+/* Removed @custom-variant: configure custom variants in tailwind.config.js or enable the PostCSS plugin that provides it */
 
 @theme inline {
   --radius-sm: calc(var(--radius) - 4px);

@@ -3,6 +3,8 @@ import axios from "axios";
 import { endpoints } from "../constants/endpoint";
 import type ApiData from "../types/todo";
 
+
+
 export const TodoApi = {
   //get all
   getAllTodo: async () => {
@@ -24,8 +26,8 @@ export const TodoApi = {
 
 
   // edit 
-  editTodoByID: (id:string| number)=>
-    axios.patch<ApiData>(endpoints.update(id))
+  editTodoByID: async (id:string| number,data:Partial<ApiData> )=>
+     await axios.patch<ApiData>(endpoints.update(id),data)
 };
 
 
