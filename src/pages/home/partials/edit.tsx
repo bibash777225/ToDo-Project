@@ -11,6 +11,7 @@ import { Input } from "@/Components/ui/input";
 import { Button } from "@/Components/ui/button";
 import { Spinner } from "@/Components/ui/spinner";
 
+
 export default function EditTodo({
   id,
   onClose,
@@ -22,18 +23,32 @@ export default function EditTodo({
   const { mutate, isPending } = useEditTodoById();
 
   const [title, setTitle] = useState("");
+   const[activities,setActivities]=useState("")
+   const[sstatus,setSstatus]=useState("")
 
   useEffect(() => {
-    if (todo?.data?.name) {
+    if (todo?.data?.name ||todo?.data?.Activities||todo?.data?.status) {
       setTitle(todo.data.name);
+      setActivities(todo.data.Activities)
+      setSstatus(todo.data.status)
     }
   }, [todo]);
 
   const handleUpdate = () => {
     if (!title.trim()) return;
 
+  //  const handleActivities=  ()=>{
+  //    if(!activities.trim()) return;
+  //  }
     mutate(
-      { id, data: { name: title.trim() } },
+      { id, 
+        data: 
+        { name: title.trim(),
+          Activities:activities.trim(),
+          status:sstatus.trim(),
+         },
+         
+      },
       {
         onSuccess: () => {
           onClose(); // Close only on success
@@ -44,9 +59,9 @@ export default function EditTodo({
 
   return (
     <Sheet open onOpenChange={onClose}>
-      <SheetContent side="right" className="w-[400]">
+      <SheetContent side="left" className="w-[]">
         <SheetHeader>
-          <SheetTitle>Edit Todo</SheetTitle>
+          <SheetTitle className="text-black-500 font-extrabold">Edit Todo</SheetTitle>
         </SheetHeader>
 
         {isLoading ? (
@@ -55,12 +70,34 @@ export default function EditTodo({
           </div>
         ) : (
           <>
-            <div className="mt-6 space-y-2">
-              <label className="text-sm font-medium">Todo Name</label>
+            <div className="mt-6 space-y-6">
+              <label className="text-xl font-medium">Todo Name</label>
               <Input
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="Enter todo name"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !isPending) {
+                    handleUpdate();
+                  }
+                }}
+              />
+              <label className="text-shadow-black font-semibold" > Activities</label>
+              <Input
+                value={activities}
+                onChange={(e) => setActivities(e.target.value)}
+                placeholder="Enter todo Activities"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !isPending) {
+                    handleUpdate();
+                  }
+                }}
+              />
+              <label className="text-shadow-black font-semibold" >Update Status</label>
+              <Input
+                value={sstatus}
+                onChange={(e) => setSstatus(e.target.value)}
+                placeholder="Enter Status of Work"
                 onKeyDown={(e) => {
                   if (e.key === "Enter" && !isPending) {
                     handleUpdate();
@@ -75,7 +112,7 @@ export default function EditTodo({
               </Button>
               <Button
                 onClick={handleUpdate}
-                disabled={isPending || !title.trim()}
+                disabled={isPending || !title.trim()||!activities.trim()}
               >
                 {isPending ? "Saving..." : "Save"}
               </Button>

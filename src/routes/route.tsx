@@ -5,6 +5,7 @@ import ViewTodo from "@/pages/home/partials/view";
 import About from "@/pages/home/Home";
 import CreateTodo from "@/pages/home/partials/create";
 import { ErrorPage, } from "@/pages/home/partials/error";
+import Info from "@/pages/home/partials/info";
 
 
 export const router = createBrowserRouter([
@@ -21,6 +22,9 @@ export const router = createBrowserRouter([
     path: "/create",
     element: <CreateTodo />,  // view particular TOdo by id 
   },
-  
+  {
+    path:"/info",
+    element:<Info/>,
+  }
  
 ]);

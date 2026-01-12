@@ -89,50 +89,54 @@ import CreateTodo from "./partials/create";
 
 
 
-
 export default function About() {
-  // get all todos
+//get all 
   const { data, isLoading } = useGetAllTodoApi();
 
-  // delete todo
   const { mutate: deleteTodo, isPending } = useDeleteTodoById();
-
-  // edit state
   const [editingId, setEditingId] = useState<string | null>(null);
-// navigation for view page
-const navigate = useNavigate();
+  const navigate = useNavigate();
+
   return (
-    <div className="min-h-screen bg-gray-100 p-6">
-      {/* Loading */}
+    <div className="min-h-screen bg-gray-100 p-3 sm:p-6">
       {isLoading && (
         <div className="flex justify-center items-center my-10">
           <Spinner className="w-10 h-10 border-4 border-green-500 border-t-transparent rounded-full animate-spin" />
         </div>
       )}
-      <CreateTodo/>
 
-      {/* Table */}
-      <div className="overflow-x-auto">
-        <table className="min-w-full bg-white rounded-xl shadow-md">
-          <thead className="bg-amber-200">
+      <CreateTodo />
+
+      <div className="mt-6 overflow-x-auto rounded-xl shadow-md bg-white">
+        <table className="min-w-700PX w-full">
+          <thead className="bg-amber-200 text-sm sm:text-base">
             <tr>
-              <th className="py-3 px-6 text-left">ID</th>
-              <th className="py-3 px-6 text-left">Name</th>
-              <th className="py-3 px-6 text-left">Activities</th>
-              <th className="py-3 px-6 text-left">Status</th>
-              <th className="py-3 px-6 text-left">Actions</th>
+              <th className="py-3 px-4 text-left">ID</th>
+              <th className="py-3 px-4 text-left">Name</th>
+              <th className="py-3 px-4 text-left">Created</th>
+              <th className="py-3 px-4 text-left">Duedate</th>
+              <th className="py-3 px-4 text-left">Status</th>
+              <th className="py-3 px-4 text-left">Actions</th>
             </tr>
           </thead>
 
           <tbody>
             {data?.data.map((item) => (
-              <tr key={item.id} className="hover:bg-green-100 transition">
-                <td className="py-3 px-6 border-b">{item.id}</td>
-                <td className="py-3 px-6 border-b">{item.name}</td>
-                <td className="py-3 px-6 border-b">{item.Activities ?? "-"}</td>
+              <tr
+                key={item.id}
+                className="hover:bg-green-100 transition text-sm sm:text-base"
+              >
+                <td className="py-3 px-4 font-bold border-b">{item.id}</td>
+
+                <td className="py-3 px-4 font-semibold border-b">
+                  {item.name}
+                </td>
+
+                <td className="py-3 px-4 border-b">{item.created}</td>
+                <td className="py-3 px-4 border-b">{item.dueDate}</td>
 
                 <td
-                  className={`py-3 px-6 border-b font-semibold ${
+                  className={`py-3 px-4 border-b font-semibold ${
                     item.status === "success"
                       ? "text-green-600"
                       : item.status === "pending"
@@ -140,20 +144,22 @@ const navigate = useNavigate();
                       : "text-red-500"
                   }`}
                 >
-                  {item.status}
+                  <Button className="bg-amber-100 text-xl text-black hover:bg-amber-800"> {item.status} </Button> 
                 </td>
 
-                <td className="py-3 px-6 border-b">
+                <td className="py-3 px-4 border-b">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="ghost">...</Button>
+                      <Button variant="ghost" className="text-xl sm:text-2xl">
+                        ⋮
+                      </Button>
                     </DropdownMenuTrigger>
 
                     <DropdownMenuContent align="end">
                       <DropdownMenuItem onClick={() => setEditingId(item.id)}>
                         Edit
                       </DropdownMenuItem>
-                      {/* Add View option */}
+
                       <DropdownMenuItem
                         onClick={() => navigate(`/view/${item.id}`)}
                       >
@@ -180,11 +186,10 @@ const navigate = useNavigate();
         </table>
       </div>
 
-      {/* Edit Sheet  is IMPORTANT: outside table */}
+      {/* Edit modal/sheet */}
       {editingId && (
         <EditTodo id={editingId} onClose={() => setEditingId(null)} />
       )}
     </div>
   );
 }
-
