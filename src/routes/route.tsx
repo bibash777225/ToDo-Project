@@ -6,6 +6,7 @@ import About from "@/pages/home/Home";
 import CreateTodo from "@/pages/home/partials/create";
 import { ErrorPage, } from "@/pages/home/partials/error";
 import Info from "@/pages/home/partials/info";
+import Form from "@/pages/home/form";
 
 
 export const router = createBrowserRouter([
@@ -25,6 +26,11 @@ export const router = createBrowserRouter([
   {
     path:"/info",
     element:<Info/>,
-  }
+  },
+//   {
+// path:"/form",
+// element:<Form/>
+
+//   }
  
 ]);

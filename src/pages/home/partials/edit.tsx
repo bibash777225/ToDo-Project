@@ -23,13 +23,13 @@ export default function EditTodo({
   const { mutate, isPending } = useEditTodoById();
 
   const [title, setTitle] = useState("");
-   const[activities,setActivities]=useState("")
+  //  const[activities,setActivities]=useState("")
    const[sstatus,setSstatus]=useState("")
 
   useEffect(() => {
-    if (todo?.data?.name ||todo?.data?.Activities||todo?.data?.status) {
+    if (todo?.data?.name ||todo?.data?.status) {
       setTitle(todo.data.name);
-      setActivities(todo.data.Activities)
+      
       setSstatus(todo.data.status)
     }
   }, [todo]);
@@ -44,7 +44,7 @@ export default function EditTodo({
       { id, 
         data: 
         { name: title.trim(),
-          Activities:activities.trim(),
+         
           status:sstatus.trim(),
          },
          
@@ -59,7 +59,7 @@ export default function EditTodo({
 
   return (
     <Sheet open onOpenChange={onClose}>
-      <SheetContent side="left" className="w-[]">
+      <SheetContent side="left" >
         <SheetHeader>
           <SheetTitle className="text-black-500 font-extrabold">Edit Todo</SheetTitle>
         </SheetHeader>
@@ -82,17 +82,7 @@ export default function EditTodo({
                   }
                 }}
               />
-              <label className="text-shadow-black font-semibold" > Activities</label>
-              <Input
-                value={activities}
-                onChange={(e) => setActivities(e.target.value)}
-                placeholder="Enter todo Activities"
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && !isPending) {
-                    handleUpdate();
-                  }
-                }}
-              />
+             
               <label className="text-shadow-black font-semibold" >Update Status</label>
               <Input
                 value={sstatus}
@@ -112,7 +102,7 @@ export default function EditTodo({
               </Button>
               <Button
                 onClick={handleUpdate}
-                disabled={isPending || !title.trim()||!activities.trim()}
+                disabled={isPending || !title.trim()||!sstatus.trim()}
               >
                 {isPending ? "Saving..." : "Save"}
               </Button>

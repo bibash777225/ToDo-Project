@@ -43,8 +43,18 @@ export default function ViewTodo() {
             <strong>Status:</strong> {data.data.status}
           </p>
           <p>
-            <strong>Activities:</strong> {data.data.Activities ?? "-"}
+            <strong>CreatedAt:</strong> {data.data.created}
           </p>
+          <p>
+            <strong>DueDate:</strong> {data.data.dueDate}
+          </p>
+         <div className="flex not-last:not-only:not-visited:not-last-of-type:">
+          <p className="text-cyan-950 text-2xl">
+           Description 
+          </p>
+           <input type="text" className="mt-10 pr-10" placeholder="" />
+           {data?.data.name} {data?.data.created}
+         </div>
         </div>
 
        {/* BUTTON */}

@@ -75,6 +75,8 @@ export const useDeleteTodoById = () => {
   });
 };
 
+
+//edit 
 export const useEditTodoById = () => {
   const queryClient = useQueryClient();
 
@@ -94,3 +96,31 @@ export const useEditTodoById = () => {
     },
   });
 };
+
+// custom hook for update todo status
+// const queryClient = useQueryClient();
+
+// // update status directly
+//  export const { mutate: updateStatus } = useMutation({
+//   mutationFn: ({ id, status }: { id: string; status: string }) =>
+//     TodoApi.editTodoByID(id, { status }),
+
+//   onSuccess: () => {
+//     // refresh todo list
+//     queryClient.invalidateQueries({ queryKey: ["LEARN"] });
+//   },
+// });
+//  export const updateStatus=()=>{
+//   const queryClient=useQueryClient();
+//   return useMutation({
+//   mutationFn:({ id, status }: { id: string; status: string })=>
+//     TodoApi.editTodoByID(id,{status}),
+
+//   onSuccess:()=>{
+
+//     //refresh todo list 
+//     queryClient.invalidateQueries({queryKey:["LEARN"]})
+//   }
+
+//   });
+// }

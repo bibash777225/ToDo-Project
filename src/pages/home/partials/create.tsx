@@ -1,54 +1,133 @@
 import { useState } from "react";
 import { useCreateTodo } from "../../../hooks/todohooks";
 import { Spinner } from "@/Components/ui/spinner";
-import { HoverCard } from "@radix-ui/react-hover-card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogOverlay,
+  DialogTitle,
+  DialogTrigger,
+} from "@/Components/ui/dialog";
+import { Button } from "@/Components/ui/button";
 
+export default function CreateTodoPopup() {
+  const today = new Date().toISOString().split("T")[0];
 
-export default function CreateTodo() {
   const [todoName, setTodoName] = useState("");
-  const { mutate, isPending } = useCreateTodo();
-  // const {deleteModal}=useDeleteTodoById()
+  const [dueDate, setDueDate] = useState("");
+  const [open, setOpen] = useState(false);
 
+  const { mutate, isPending } = useCreateTodo();
+//form submit handler function run when user submit the form  also prevent default form submision behavior (page reload)
   const handleCreateTodo = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (todoName.trim()) {
-      mutate({
-        name: todoName,
-      });
-      setTodoName("");
+    if (!todoName.trim() || !dueDate) {
+      console.error("Todo name and due date are required");
+      return;
     }
-  };
-  return (
-    <>
-      <div className="text-center font-bold text-2xl border-b-4 border-gray-500 pb-2 bg-amber-100">
-        <h1> Todo List</h1>
 
-        <div className="bg-white rounded-lg shadow-sm p-6">
+    mutate(
+      {
+        name: todoName.trim(),
+        created: today, // today date
+        dueDate,
+        status: "pending",
+      },
+      {
+        onSuccess: () => {
+          console.log("Todo created successfully");
+          setTodoName("");
+          setDueDate("");
+          setOpen(false);
+        },
+        onError: (error) => {
+          console.error("Error creating todo:", error);
+        },
+      }
+    );
+  };
+
+  return (
+    <div className="text-center font-bold text-2xl border-b-4 bg-linear-to-r from-blue-500  shadow-lg">
+      <h1 className="text-xl sm:text-2xl py-3">Todo List</h1>
+
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogOverlay className="backdrop-blur-lg" />
+        <DialogTrigger asChild>
+          {/* aschild passes props to child instead of wrapping in extraelemnt  */}
+          <Button className="  bg-white text-amber-600 hover:bg-purple-50 font-semibold px-6 py-3 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 w-full sm:w-auto">
+            Add Todo
+          </Button>
+        </DialogTrigger>
+
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-lg sm:text-xl">
+              Create New Todo
+            </DialogTitle>
+
+            <DialogDescription className="text-sm sm:text-base">
+              Fill out the form below to add a new todo item.
+            </DialogDescription>
+          </DialogHeader>
+
           <form
             onSubmit={handleCreateTodo}
-            className="flex gap-3flex flex-col sm:flex-row gap-3"
+            className="flex flex-col gap-4 sm:gap-4 mt-4"
           >
+            <label className="text-sm font-semibold text-gray-700">Title</label>
             <input
               type="text"
               value={todoName}
               onChange={(e) => setTodoName(e.target.value)}
               placeholder="Enter todo name..."
-              className="w-full sm:flex-1 px-4 py-2 border-2 border-gray-300 rounded-lg"
+              required
+              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg
+               focus:outline-none focus:ring-2 focus:ring-amber-400
+               focus:border-amber-400 transition"
             />
+            <label className="text-sm font-semibold text-gray-700">
+              Due Date
+            </label>
+            <input
+              type="date"
+              value={dueDate}
+              min={today} // prevent selecting dates in past
+              onChange={(e) => setDueDate(e.target.value)}
+              required
+              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg
+               focus:outline-none focus:ring-2 focus:ring-blue-400
+               focus:border-blue-400 transition"
+            />
+            {/* Conditional rendering */}
             {isPending && (
-              <Spinner className="w-8 h-8 border-4 self-center ... text-green-500 border-t-transparent rounded-full animate-spin"></Spinner>
+              <Spinner className="w-8 h-8 border-4 self-center text-green-500 border-t-transparent rounded-full animate-spin" />
             )}
-            <HoverCard> </HoverCard>
-            <button
-              type="submit"
-              className="w-full sm:w-auto  bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition flex items-center justify-center gap-99 font-medium"
-            >
-              Create
-            </button>
+            <DialogFooter className="mt-2 flex justify-end gap-2">
+              <Button
+                type="submit"
+                className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg px-6"
+                disabled={isPending}
+              >
+                {isPending ? "Creating..." : "Create"}
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setOpen(false)}
+                disabled={isPending}
+                className="rounded-lg px-6"
+              >
+                Cancel
+              </Button>
+            </DialogFooter>
           </form>
-        </div>
-      </div>
-    </>
+        </DialogContent>
+      </Dialog>
+    </div>
   );
 }
