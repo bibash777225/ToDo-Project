@@ -6,12 +6,17 @@ import About from "@/pages/home/Home";
 import CreateTodo from "@/pages/home/partials/create";
 import { ErrorPage, } from "@/pages/home/partials/error";
 import Info from "@/pages/home/partials/info";
-import Form from "@/pages/home/form";
+import Login from "@/pages/home/partials/login";
 
 
 export const router = createBrowserRouter([
   {
-    path: "/",
+ path:"/",
+ element:<Login/>
+
+  },
+  {
+    path: "/about",
     element:< About/>,//home page 
     errorElement:<ErrorPage></ErrorPage>
   },
@@ -27,10 +32,5 @@ export const router = createBrowserRouter([
     path:"/info",
     element:<Info/>,
   },
-//   {
-// path:"/form",
-// element:<Form/>
-
-//   }
  
 ]);

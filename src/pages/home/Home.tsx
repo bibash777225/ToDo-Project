@@ -1,76 +1,3 @@
-//  import { Spinner } from "@/Components/ui/spinner";
-// import {
-//   useTodoGetById,
-//   useGetAllTodoApi,
-
-// } from "../services/todo";
-
-// export default function About() {
-
-//   // get by id ko
-//   const { data: id } = useTodoGetById(5);
-//   console.log(id);
-
-//   // delete ko
-
-//   //  const {data:dl}=useDeleteTodoById(5)
-//   //  console.log(dl)
-//   // get all ko
-
-//   const { data ,isLoading} = useGetAllTodoApi();
-//   console.log(data);
-
-//   // create
-
-// //   const { mutate } = useCreateTodo();
-// //   const handleCreateTodo = () => {
-// //     mutate({
-// //       name: "hi bibash",
-// //     });
-// //   };
-
-// return (
-
-//   // full screen height        lightbackgaround  padding
-//   <div className="h-screen bg-gray-100 p-6 flex flex-wrap gap-6 justify">
-
-//     <div className="flex-text-center justify-center h-screen">
-// { isLoading &&(
-
-//       <Spinner className="w-10 h-10 border-4 text-green-500  bg-center border-t-transparent rounded-full animate-spin"></Spinner>
-
-// )}
-//     </div>
-
-//       {data?.data.map((item) => (
-//         <div
-//           key={item.id}
-//           className=" w-64 bg-white border-gray-300 p-5 gap-6 rounded-xl shadow-sm hover:shadow-lg transition"
-//         >
-//           <div className="text-lg font-semibold text-green-700 text-center">
-//             {item.name}
-//           </div>
-//         </div>
-//       ))}
-// {/*
-//       <div className="flex justify-center mb-6">
-//         <button
-//           onClick={handleCreateTodo}
-//           className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-//         >
-//           create
-//         </button>
-//       </div> */}
-
-//       <div className="flex flex-wrap gap-6 justify-center">
-
-//       <h2 >
-//         {id?.data.name}
-//       </h2>
-//       </div>
-//     </div>
-//   );
-// }
 import { Button } from "@/Components/ui/button";
 import {
   DropdownMenu,
@@ -90,9 +17,19 @@ import { useNavigate } from "react-router-dom";
 import CreateTodo from "./partials/create";
 import EditTodo from "./partials/edit";
 import Filters from "./partials/filters";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/Components/ui/pagination";
 
 export default function About() {
-  // for status update
+  const [current, setCurrentPage] = useState<number>(1);
+
   const queryClient = useQueryClient();
 
   // mutation to update status
@@ -131,22 +68,35 @@ export default function About() {
         ? timeB - timeA // Latest  Oldest
         : timeA - timeB; // Oldest Latest
     });
+  const itemsPerPage = 5;
+
+  const lastIndex = current * itemsPerPage;
+  const firstIndex = lastIndex - itemsPerPage;
+
+  // pageinitiation
+
+  const currentItems = filteredValues?.slice(firstIndex, lastIndex);
+  const totalPages = Math.ceil((filteredValues?.length || 0) / itemsPerPage);
+  const pagesArray = Array(totalPages).fill(null);
+  const handlePageChange = (pageNumber: number) => {
+    if(pageNumber<1||pageNumber>totalPages) return
+    setCurrentPage(pageNumber);
+  };
 
   return (
-    <div className=" flec h-[100] w-[100vw] flex-col items-center justify-centermin-h-screen bg-gray-100 p-3 sm:p-6">
+    <div className=" flec h-[100] w-screen flex-col items-center justify-centermin-h-screen bg-gray-100 p-3 sm:p-6">
       {isLoading && (
         <div className="flex justify-center   my-10">
           <Spinner className="w-10 h-10 border-4 border-green-500 border-t-transparent rounded-full animate-spin" />
         </div>
       )}
-
-      <div className="mt-6 overflow-x-auto rounded-xl shadow-md bg-white">
+      <div className="mt-6  overflow-x-auto rounded-xl w-screen  shadow-md bg-white">
         <CreateTodo />
         <Filters
           filters={filters}
           onChange={(f) => setFilters({ search: f.search || "" })}
         />
-        <table className="min-w-700PX w-full">
+        <table className="mt-4 min-w-700PX w-full">
           <thead className="bg-linear-to-r from-blue-500  shadow-lg text-sm sm:text-base ">
             <tr>
               <th className="py-3 px-4 text-left">ID</th>
@@ -164,7 +114,7 @@ export default function About() {
           </thead>
 
           <tbody>
-            {filteredValues?.map((item, i) => (
+            {currentItems?.map((item, i) => (
               <tr
                 key={item.id}
                 className="hover:bg-green-100 transition text-sm sm:text-base"
@@ -181,8 +131,12 @@ export default function About() {
                 {/* satus */}
                 <td className="py-3 px-4 border-b font-semibold">
                   <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
+                    <DropdownMenuTrigger
+                      asChild
+                      disabled={item.status === "success"}
+                    >
                       <Button
+                        disabled={item.status === "success"}
                         variant={"ghost"}
                         className={`${
                           item.status === "success"
@@ -231,11 +185,6 @@ export default function About() {
                       )}
 
                       {/* Optional: disable current status */}
-                      {item.status === "success" && (
-                        <DropdownMenuItem disabled>
-                          Already Success
-                        </DropdownMenuItem>
-                      )}
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </td>
@@ -278,11 +227,46 @@ export default function About() {
           </tbody>
         </table>
       </div>
-
       {/* Edit modal/sheet */}
       {editingId && (
         <EditTodo id={editingId} onClose={() => setEditingId(null)} />
       )}
+      <Pagination>
+        <PaginationContent>
+          <PaginationItem >
+            
+            <PaginationPrevious 
+            onClick={()=>{
+              
+              handlePageChange(current-1)
+              {current==totalPages}
+              
+            }} />
+          </PaginationItem>
+          {pagesArray.map((_, i) => (
+            <PaginationItem>
+
+              <PaginationLink
+                isActive={i + 1 == current}
+                onClick={() => {
+                  handlePageChange(i + 1);
+                  Math.floor(current-1)*totalPages
+                }}
+              >
+                {i + 1}
+              </PaginationLink>
+
+            </PaginationItem>
+          ))}
+
+          <PaginationItem>
+            <PaginationNext onClick={()=>{
+              handlePageChange(current+1)
+            {current==+1}
+            }} />
+          </PaginationItem>
+        </PaginationContent>
+      </Pagination>
     </div>
   );
 }
