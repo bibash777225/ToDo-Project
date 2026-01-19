@@ -52,7 +52,9 @@ export default function CreateTodoPopup() {
   };
 
   return (
+    
     <div className="text-center font-bold text-2xl border-b-4 bg-linear-to-r from-blue-500  shadow-lg">
+  
       <h1 className="text-xl sm:text-2xl py-3">Todo List</h1>
 
       <Dialog open={open} onOpenChange={setOpen}>

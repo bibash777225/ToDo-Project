@@ -10,6 +10,14 @@ import { useState } from "react";
 
 import { useDeleteTodoById, useGetAllTodoApi } from "../../hooks/todohooks";
 
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious
+} from "@/Components/ui/pagination";
 import { TodoApi } from "@/services/todo";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ChevronDown, ChevronUp } from "lucide-react";
@@ -17,15 +25,6 @@ import { useNavigate } from "react-router-dom";
 import CreateTodo from "./partials/create";
 import EditTodo from "./partials/edit";
 import Filters from "./partials/filters";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationEllipsis,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/Components/ui/pagination";
 
 export default function About() {
   const [current, setCurrentPage] = useState<number>(1);
@@ -53,9 +52,9 @@ export default function About() {
 
   // sorting
   const [filters, setFilters] = useState({ search: "" });
+  //recent date filter
   const [latest, setLatest] = useState(true);
-  //accending
-  // const [sort, setSort] = useState({ ascending: false });
+
 
   //filtering
   const filteredValues = data?.data
@@ -84,7 +83,7 @@ export default function About() {
   };
 
   return (
-    <div className=" flec h-[100] w-screen flex-col items-center justify-centermin-h-screen bg-gray-100 p-3 sm:p-6">
+    <div className=" flex h-[100] w-screen flex-col items-center justify-center min-h-screen bg-gray-100 p-3 sm:p-6">
       {isLoading && (
         <div className="flex justify-center   my-10">
           <Spinner className="w-10 h-10 border-4 border-green-500 border-t-transparent rounded-full animate-spin" />
@@ -102,12 +101,15 @@ export default function About() {
               <th className="py-3 px-4 text-left">ID</th>
               <th className="py-3 px-4 text-left">TITLE</th>
               <th className="py-3 px-4 text-left">
-                Created
-                <button onClick={() => setLatest(!latest)}>
-                  {latest ? <ChevronUp /> : <ChevronDown />}
+                <button
+                  className="hover: text-sm sm:text-base"
+                  onClick={() => setLatest(!latest)}
+                >
+                  Created
+                  {latest?<ChevronUp /> : <ChevronDown />}
                 </button>
               </th>
-              <th className="py-3 px-4 text-left">Duedate</th>
+              <th className="py-3 px-4 text-left">Due-date</th>
               <th className="py-3 px-4 text-left">Status</th>
               <th className="py-3 px-4 text-left">Actions</th>
             </tr>
@@ -119,7 +121,9 @@ export default function About() {
                 key={item.id}
                 className="hover:bg-green-100 transition text-sm sm:text-base"
               >
-                <td className="py-3 px-4 font-bold border-b">{i + 1}</td>
+                <td className="py-3 px-4 font-bold border-b">
+                  {firstIndex + i + 1}
+                </td>
 
                 <td className="py-3 px-4 font-semibold border-b">
                   {item.name}
@@ -142,8 +146,8 @@ export default function About() {
                           item.status === "success"
                             ? "bg-green-300 text-black"
                             : item.status === "in progress"
-                            ? "bg-blue-200 text-black"
-                            : "bg-yellow-200 text-black"
+                              ? "bg-blue-200 text-black"
+                              : "bg-yellow-200 text-black"
                         }`}
                       >
                         {item.status}
@@ -192,32 +196,53 @@ export default function About() {
                 <td className="py-3 px-4 border-b">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" className="text-xl sm:text-2xl">
+                      <Button
+                        variant="ghost"
+                        className="text-xl sm:text-2xl hover:bg-gray-100 rounded"
+                      >
                         ⋮
                       </Button>
                     </DropdownMenuTrigger>
 
                     <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => setEditingId(item.id)}>
-                        Edit
+                      <DropdownMenuItem
+                        onClick={() => {
+                          const sureEdit = window.confirm(
+                            `Are You Sure to edit"${item.name}" And ${item.dueDate}`,
+                          );
+                          if (sureEdit) {
+                            setEditingId(item.id);
+                          }
+                        }}
+                        className="flex items-center gap-2"
+                      >
+                        ✏️ Edit
                       </DropdownMenuItem>
 
                       <DropdownMenuItem
                         onClick={() => navigate(`/view/${item.id}`)}
                       >
-                        View
+                        👁️ View
                       </DropdownMenuItem>
 
                       <DropdownMenuItem
                         variant="destructive"
                         disabled={isPending}
-                        onClick={() => deleteTodo(item.id)}
-                        className="flex items-center gap-2"
+                        
+                        onClick={() => {
+                          const shouldDelete = window.confirm(
+                            `Are you Sure You want to delte "${item.name}"`,
+                          );
+                          if (shouldDelete) {
+                            deleteTodo(item.id);
+                          }
+                        }}
+                        className="flex items-center gap-2w-full text-red-600 hover:bg-red-50"
                       >
                         {isPending && (
                           <Spinner className="w-4 h-4 border-2 border-green-500 border-t-transparent rounded-full animate-spin" />
                         )}
-                        {isPending ? "Deleting..." : "Delete"}
+                        {isPending ? "Deleting..." : "🗑️Delete"}
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -231,39 +256,41 @@ export default function About() {
       {editingId && (
         <EditTodo id={editingId} onClose={() => setEditingId(null)} />
       )}
-      <Pagination>
+      <Pagination className="flex  sm:gap-4  mt-4">
         <PaginationContent>
           <PaginationItem >
-            
-            <PaginationPrevious 
-            onClick={()=>{
-              
-              handlePageChange(current-1)
-              {current==totalPages}
-              
-            }} />
+            <PaginationPrevious
+              onClick={() => {
+                handlePageChange(current - 1);
+                {
+                  current ==+1;
+                }
+              }}
+            />
           </PaginationItem>
           {pagesArray.map((_, i) => (
             <PaginationItem>
-
-              <PaginationLink
+              <PaginationLink className="bg-blue-100"
                 isActive={i + 1 == current}
                 onClick={() => {
                   handlePageChange(i + 1);
-                  Math.floor(current-1)*totalPages
+                  Math.floor(current - 1) * totalPages;
                 }}
               >
                 {i + 1}
               </PaginationLink>
-
             </PaginationItem>
           ))}
 
           <PaginationItem>
-            <PaginationNext onClick={()=>{
-              handlePageChange(current+1)
-            {current==+1}
-            }} />
+            <PaginationNext
+              onClick={() => {
+                handlePageChange(current + 1);
+                {
+                  current == +1;
+                }
+              }}
+            />
           </PaginationItem>
         </PaginationContent>
       </Pagination>
