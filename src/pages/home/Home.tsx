@@ -11,16 +11,25 @@ import { useState } from "react";
 import { useDeleteTodoById, useGetAllTodoApi } from "../../hooks/todohooks";
 
 import {
+  AlertDialog, AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle
+} from "@/Components/ui/alert-dialog";
+import {
   Pagination,
   PaginationContent,
   PaginationItem,
   PaginationLink,
   PaginationNext,
-  PaginationPrevious
+  PaginationPrevious,
 } from "@/Components/ui/pagination";
-import { TodoApi } from "@/services/todo";
+import { TodoApi } from "../../services/todo";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { ChevronDown, ChevronUp } from "lucide-react";
+import { ChevronDown, ChevronUp, Delete, Edit, View } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import CreateTodo from "./partials/create";
 import EditTodo from "./partials/edit";
@@ -50,11 +59,11 @@ export default function About() {
   //navigation
   const navigate = useNavigate();
 
+  const [deleteId, setDeleteId] = useState<string | null>(null);
   // sorting
   const [filters, setFilters] = useState({ search: "" });
   //recent date filter
   const [latest, setLatest] = useState(true);
-
 
   //filtering
   const filteredValues = data?.data
@@ -77,13 +86,21 @@ export default function About() {
   const currentItems = filteredValues?.slice(firstIndex, lastIndex);
   const totalPages = Math.ceil((filteredValues?.length || 0) / itemsPerPage);
   const pagesArray = Array(totalPages).fill(null);
+
   const handlePageChange = (pageNumber: number) => {
-    if(pageNumber<1||pageNumber>totalPages) return
+    if (pageNumber < 1 || pageNumber > totalPages) return;
     setCurrentPage(pageNumber);
+  };
+  const handleDelete = (id: string) => {
+    deleteTodo(id, {
+      onSuccess: () => {
+        setDeleteId(null); // Close dialog after delete
+      },
+    });
   };
 
   return (
-    <div className=" flex h-[100] w-screen flex-col items-center justify-center min-h-screen bg-gray-100 p-3 sm:p-6">
+    <div className=" flex h-[100] w-screen flex-col items-center justify-center  bg-gray-100 p-3 sm:p-6">
       {isLoading && (
         <div className="flex justify-center   my-10">
           <Spinner className="w-10 h-10 border-4 border-green-500 border-t-transparent rounded-full animate-spin" />
@@ -106,7 +123,7 @@ export default function About() {
                   onClick={() => setLatest(!latest)}
                 >
                   Created
-                  {latest?<ChevronUp /> : <ChevronDown />}
+                  {latest ? <ChevronUp /> : <ChevronDown />}
                 </button>
               </th>
               <th className="py-3 px-4 text-left">Due-date</th>
@@ -206,43 +223,34 @@ export default function About() {
 
                     <DropdownMenuContent align="end">
                       <DropdownMenuItem
+                        variant="default"
+                        className="flex items-center gap-2 w-full text-black-600 hover:bg-gray-70"
                         onClick={() => {
-                          const sureEdit = window.confirm(
-                            `Are You Sure to edit"${item.name}" And ${item.dueDate}`,
-                          );
-                          if (sureEdit) {
-                            setEditingId(item.id);
-                          }
+                          setEditingId(item.id);
                         }}
-                        className="flex items-center gap-2"
                       >
-                        ✏️ Edit
+                        <Edit className=" hover:bg-amber-200" />
+                        Edit
                       </DropdownMenuItem>
 
                       <DropdownMenuItem
+                        variant="default"
+                        className="flex items-center gap-2 w-full text-black-600 hover:bg-gray-70"
                         onClick={() => navigate(`/view/${item.id}`)}
                       >
-                        👁️ View
+                        <View> </View>View
                       </DropdownMenuItem>
 
                       <DropdownMenuItem
                         variant="destructive"
-                        disabled={isPending}
-                        
-                        onClick={() => {
-                          const shouldDelete = window.confirm(
-                            `Are you Sure You want to delte "${item.name}"`,
-                          );
-                          if (shouldDelete) {
-                            deleteTodo(item.id);
-                          }
-                        }}
-                        className="flex items-center gap-2w-full text-red-600 hover:bg-red-50"
+                        className="flex items-center gap-2 w-full text-red-600 hover:bg-red-50"
+                        onClick={() => setDeleteId(item.id)}
                       >
                         {isPending && (
-                          <Spinner className="w-4 h-4 border-2 border-green-500 border-t-transparent rounded-full animate-spin" />
+                          <Spinner className="w-4 h-4 border-2 border-red-500 border-t-transparent rounded-full animate-spin" />
                         )}
-                        {isPending ? "Deleting..." : "🗑️Delete"}
+                        <Delete></Delete>
+                        {isPending ? "Deleting..." : " Delete"}
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -256,21 +264,48 @@ export default function About() {
       {editingId && (
         <EditTodo id={editingId} onClose={() => setEditingId(null)} />
       )}
+
+      {/* alert for delete */}
+      {deleteId && (
+        <AlertDialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>⚠️ Delete Todo?</AlertDialogTitle>
+              <AlertDialogDescription>
+                This will permanently delete todo from your list.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel> Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={() => handleDelete(deleteId!)}
+                className="bg-red-200 hover:bg-red-400"
+                disabled={isPending}
+              >
+                {isPending ? "🗑️ Deleting..." : " Delete"}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      )}
+
+      {/* for pagination */}
       <Pagination className="flex  sm:gap-4  mt-4">
         <PaginationContent>
-          <PaginationItem >
+          <PaginationItem>
             <PaginationPrevious
               onClick={() => {
                 handlePageChange(current - 1);
                 {
-                  current ==+1;
+                  current == +1;
                 }
               }}
             />
           </PaginationItem>
           {pagesArray.map((_, i) => (
             <PaginationItem>
-              <PaginationLink className="bg-blue-100"
+              <PaginationLink
+                className="bg-blue-100"
                 isActive={i + 1 == current}
                 onClick={() => {
                   handlePageChange(i + 1);
